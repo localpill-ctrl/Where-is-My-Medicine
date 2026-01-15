@@ -286,16 +286,22 @@ export const submitResponse = async (
     }
   }
 
-  const docRef = await addDoc(responsesRef, {
+  const responseData: Record<string, unknown> = {
     pharmacyId,
     pharmacyName,
     pharmacyPhone,
     pharmacyLocation,
     distance,
     availability,
-    chatId,
     respondedAt: serverTimestamp(),
-  });
+  };
+
+  // Only add chatId if it exists (for "available" responses)
+  if (chatId) {
+    responseData.chatId = chatId;
+  }
+
+  const docRef = await addDoc(responsesRef, responseData);
 
   // Update request response count and first response time
   const requestRef = doc(db, 'requests', requestId);
@@ -342,6 +348,37 @@ export const getPharmacyResponseForRequest = async (
     return { responseId: doc.id, ...doc.data() } as PharmacyResponse;
   }
   return null;
+};
+
+// Get pharmacy's response history (all requests they've responded to)
+export const getPharmacyResponseHistory = async (
+  pharmacyId: string
+): Promise<{ request: MedicineRequest; response: PharmacyResponse }[]> => {
+  // Get all requests (we'll filter for the ones this pharmacy responded to)
+  const requestsRef = collection(db, 'requests');
+  const requestsSnapshot = await getDocs(requestsRef);
+
+  const history: { request: MedicineRequest; response: PharmacyResponse }[] = [];
+
+  for (const requestDoc of requestsSnapshot.docs) {
+    const request = { requestId: requestDoc.id, ...requestDoc.data() } as MedicineRequest;
+
+    // Check if this pharmacy responded to this request
+    const response = await getPharmacyResponseForRequest(requestDoc.id, pharmacyId);
+
+    if (response) {
+      history.push({ request, response });
+    }
+  }
+
+  // Sort by response time (newest first)
+  history.sort((a, b) => {
+    const timeA = a.response.respondedAt?.toDate?.()?.getTime() || 0;
+    const timeB = b.response.respondedAt?.toDate?.()?.getTime() || 0;
+    return timeB - timeA;
+  });
+
+  return history;
 };
 
 // ============ CHAT OPERATIONS ============
