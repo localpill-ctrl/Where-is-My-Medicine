@@ -27,6 +27,8 @@ import {
   History,
   Bell,
   BellOff,
+  X,
+  Volume2,
 } from 'lucide-react';
 
 // Play notification sound using Web Audio API
@@ -34,22 +36,25 @@ const playNotificationSound = () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 
-    // Create a pleasant notification tone
+    // Create an attention-grabbing alert tone
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    // Two-tone notification
+    // Alert-style two-tone pattern
     oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5
-    oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.1); // C#6
+    oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.15); // C#6
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.3); // A5
+    oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.45); // C#6
 
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.4, audioContext.currentTime + 0.5);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
 
     oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
+    oscillator.stop(audioContext.currentTime + 0.6);
   } catch (err) {
     console.error('Error playing notification sound:', err);
   }
@@ -82,10 +87,51 @@ export default function PharmacyDashboard() {
   const [loading, setLoading] = useState(true);
   const [togglingStatus, setTogglingStatus] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   // Track previous request IDs to detect new ones
   const previousRequestIds = useRef<Set<string>>(new Set());
   const isFirstLoad = useRef(true);
+  const soundIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Start continuous alert sound
+  const startAlertSound = useCallback((message: string) => {
+    // Clear any existing interval
+    if (soundIntervalRef.current) {
+      clearInterval(soundIntervalRef.current);
+    }
+
+    setAlertMessage(message);
+    setShowAlert(true);
+
+    // Play immediately
+    playNotificationSound();
+
+    // Then repeat every 2 seconds
+    soundIntervalRef.current = setInterval(() => {
+      playNotificationSound();
+    }, 2000);
+  }, []);
+
+  // Stop the alert sound
+  const stopAlertSound = useCallback(() => {
+    if (soundIntervalRef.current) {
+      clearInterval(soundIntervalRef.current);
+      soundIntervalRef.current = null;
+    }
+    setShowAlert(false);
+    setAlertMessage('');
+  }, []);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (soundIntervalRef.current) {
+        clearInterval(soundIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Initialize online status from user profile
   useEffect(() => {
@@ -156,8 +202,15 @@ export default function PharmacyDashboard() {
           );
 
           if (newRequests.length > 0) {
-            // Play notification sound
-            playNotificationSound();
+            // Build alert message
+            const alertMsg = newRequests.length === 1
+              ? newRequests[0].requestType === 'prescription'
+                ? `${newRequests[0].customerName} uploaded a prescription`
+                : `${newRequests[0].customerName} is looking for: ${newRequests[0].medicineText?.slice(0, 30) || 'medicine'}`
+              : `${newRequests.length} new medicine requests nearby!`;
+
+            // Start continuous alert sound
+            startAlertSound(alertMsg);
 
             // Show browser notification for each new request
             newRequests.forEach((request) => {
@@ -210,7 +263,7 @@ export default function PharmacyDashboard() {
     );
 
     return () => unsubscribe();
-  }, [user?.pharmacyProfile?.location, user?.uid, isOnline, notificationsEnabled]);
+  }, [user?.pharmacyProfile?.location, user?.uid, isOnline, notificationsEnabled, startAlertSound]);
 
   const handleLogout = async () => {
     if (user && isOnline) {
@@ -225,8 +278,29 @@ export default function PharmacyDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Alert Banner - Shows when new request arrives */}
+      {showAlert && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-green-500 text-white px-4 py-3 shadow-lg animate-pulse">
+          <div className="flex items-center justify-between max-w-lg mx-auto">
+            <div className="flex items-center gap-3">
+              <Volume2 className="w-6 h-6 animate-bounce" />
+              <div>
+                <p className="font-bold">New Request!</p>
+                <p className="text-sm text-green-100">{alertMessage}</p>
+              </div>
+            </div>
+            <button
+              onClick={stopAlertSound}
+              className="p-2 hover:bg-green-600 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <header className="bg-white px-6 py-4 border-b border-gray-100">
+      <header className={`bg-white px-6 py-4 border-b border-gray-100 ${showAlert ? 'mt-16' : ''}`}>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">
@@ -334,7 +408,7 @@ export default function PharmacyDashboard() {
             </h2>
             <div className="space-y-3">
               {pendingRequests.map((request) => (
-                <RequestCard key={request.requestId} request={request} />
+                <RequestCard key={request.requestId} request={request} onNavigate={stopAlertSound} />
               ))}
             </div>
           </section>
@@ -346,7 +420,7 @@ export default function PharmacyDashboard() {
             <h2 className="text-lg font-semibold mb-4">Your Responses</h2>
             <div className="space-y-3">
               {respondedRequests.map((request) => (
-                <RequestCard key={request.requestId} request={request} />
+                <RequestCard key={request.requestId} request={request} onNavigate={stopAlertSound} />
               ))}
             </div>
           </section>
@@ -375,10 +449,11 @@ export default function PharmacyDashboard() {
   );
 }
 
-function RequestCard({ request }: { request: RequestWithDistance }) {
+function RequestCard({ request, onNavigate }: { request: RequestWithDistance; onNavigate?: () => void }) {
   const router = useRouter();
 
   const handleClick = () => {
+    onNavigate?.();
     router.push(`/pharmacy/request/${request.requestId}`);
   };
 

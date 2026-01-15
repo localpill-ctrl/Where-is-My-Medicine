@@ -90,11 +90,23 @@ export default function NewRequestPage() {
       // Upload images if prescription type
       let prescriptionImageUrls: string[] = [];
       if (requestType === 'prescription') {
-        prescriptionImageUrls = await Promise.all(
-          images.map((file, index) =>
-            uploadPrescriptionImage(tempId, file, index)
-          )
-        );
+        console.log('=== Uploading Prescription Images ===');
+        console.log('Number of images:', images.length);
+
+        try {
+          prescriptionImageUrls = await Promise.all(
+            images.map(async (file, index) => {
+              console.log(`Uploading image ${index + 1}:`, file.name, file.size);
+              const url = await uploadPrescriptionImage(tempId, file, index);
+              console.log(`Image ${index + 1} uploaded:`, url);
+              return url;
+            })
+          );
+          console.log('All images uploaded successfully:', prescriptionImageUrls);
+        } catch (uploadError) {
+          console.error('=== Image Upload Error ===', uploadError);
+          throw new Error('Failed to upload prescription image. Please check Firebase Storage rules.');
+        }
       }
 
       // Create request
