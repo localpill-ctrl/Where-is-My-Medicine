@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
+import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import { MapPin, Upload, MessageCircle, Pill, Search, Phone, Navigation } from 'lucide-react';
 
@@ -33,14 +34,14 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <span className="text-2xl font-black tracking-tight">
-            L<span className="text-primary">O</span>CAL
-          </span>
-          <span className="text-2xl font-black tracking-tight">
-            <span className="text-primary">P</span>ILL
-          </span>
-        </div>
+        <Image
+          src="/logo.png"
+          alt="LocalPill"
+          width={120}
+          height={40}
+          className="h-10 w-auto"
+          priority
+        />
         <Button variant="outline" size="sm" onClick={() => router.push('/login')}>
           Login
         </Button>

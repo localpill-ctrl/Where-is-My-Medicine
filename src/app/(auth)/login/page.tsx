@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { signInWithGoogle } from '@/lib/firebase/auth';
 import { getUser } from '@/lib/firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Pill } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -82,9 +83,14 @@ export default function LoginPage() {
 
       {/* Logo */}
       <div className="flex justify-center mb-8">
-        <div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center">
-          <Pill className="w-8 h-8 text-primary-dark" />
-        </div>
+        <Image
+          src="/logo.png"
+          alt="LocalPill"
+          width={150}
+          height={60}
+          className="h-14 w-auto"
+          priority
+        />
       </div>
 
       <div className="max-w-md mx-auto">
