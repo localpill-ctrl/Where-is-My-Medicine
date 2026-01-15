@@ -175,72 +175,55 @@ export const closeRequest = async (
 };
 
 // Subscribe to active requests near a pharmacy location
+// Simplified version - fetches all active requests and filters client-side
 export const subscribeToNearbyRequests = (
   pharmacyLat: number,
   pharmacyLng: number,
   callback: (requests: MedicineRequest[]) => void
 ) => {
-  // Get geohash bounds for the query
-  const bounds = geohashQueryBounds([pharmacyLat, pharmacyLng], BROADCAST_RADIUS_KM * 1000);
-
   const requestsRef = collection(db, 'requests');
 
-  // We need to make multiple queries for each bound
-  const unsubscribes: (() => void)[] = [];
-  const allRequests: Map<string, MedicineRequest> = new Map();
+  // Simple query - just get all active requests (no orderBy to avoid index requirement)
+  const q = query(
+    requestsRef,
+    where('status', '==', 'active')
+  );
 
-  bounds.forEach((bound) => {
-    const q = query(
-      requestsRef,
-      where('status', '==', 'active'),
-      where('location.geohash', '>=', bound[0]),
-      where('location.geohash', '<=', bound[1]),
-      orderBy('location.geohash'),
-      orderBy('createdAt', 'desc')
-    );
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const requests: MedicineRequest[] = [];
 
-    const unsub = onSnapshot(q, (snapshot) => {
-      // Update our local map
-      snapshot.docChanges().forEach((change) => {
-        const request = { requestId: change.doc.id, ...change.doc.data() } as MedicineRequest;
+      snapshot.docs.forEach((doc) => {
+        const request = { requestId: doc.id, ...doc.data() } as MedicineRequest;
 
-        if (change.type === 'removed') {
-          allRequests.delete(request.requestId);
-        } else {
-          // Filter by actual distance
+        // Filter by distance client-side
+        if (request.location?.lat && request.location?.lng) {
           const distance = distanceBetween(
             [pharmacyLat, pharmacyLng],
             [request.location.lat, request.location.lng]
           );
+
           if (distance <= BROADCAST_RADIUS_KM) {
-            allRequests.set(request.requestId, request);
+            requests.push(request);
           }
         }
       });
 
-      // Convert map to array and sort by distance
-      const requestsArray = Array.from(allRequests.values()).sort((a, b) => {
-        const distA = distanceBetween(
-          [pharmacyLat, pharmacyLng],
-          [a.location.lat, a.location.lng]
-        );
-        const distB = distanceBetween(
-          [pharmacyLat, pharmacyLng],
-          [b.location.lat, b.location.lng]
-        );
-        return distA - distB;
+      // Sort by createdAt (newest first) then by distance
+      requests.sort((a, b) => {
+        const timeA = a.createdAt?.toDate?.()?.getTime() || 0;
+        const timeB = b.createdAt?.toDate?.()?.getTime() || 0;
+        return timeB - timeA;
       });
 
-      callback(requestsArray);
-    });
-
-    unsubscribes.push(unsub);
-  });
-
-  // Return a function that unsubscribes from all queries
-  return () => {
-    unsubscribes.forEach((unsub) => unsub());
-  };
+      callback(requests);
+    },
+    (error) => {
+      console.error('Error subscribing to nearby requests:', error);
+      callback([]);
+    }
+  );
 };
 
 // ============ RESPONSE OPERATIONS ============

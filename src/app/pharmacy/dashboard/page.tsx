@@ -69,10 +69,13 @@ export default function PharmacyDashboard() {
     const pharmacyLat = user.pharmacyProfile.location.lat;
     const pharmacyLng = user.pharmacyProfile.location.lng;
 
+    console.log('Subscribing to nearby requests at:', pharmacyLat, pharmacyLng);
+
     const unsubscribe = subscribeToNearbyRequests(
       pharmacyLat,
       pharmacyLng,
       async (requests) => {
+        console.log('Received requests:', requests.length, requests);
         // Add distance info and check if already responded
         const requestsWithInfo: RequestWithDistance[] = await Promise.all(
           requests.map(async (request) => {
