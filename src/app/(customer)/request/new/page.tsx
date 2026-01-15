@@ -126,6 +126,7 @@ export default function NewRequestPage() {
       // Add optional fields only if they have values
       if (requestType === 'prescription' && prescriptionImageUrls.length > 0) {
         requestData.prescriptionImageUrls = prescriptionImageUrls;
+        requestData.medicineText = 'Prescription uploaded';
       }
       if (requestType === 'text' && medicineText.trim()) {
         requestData.medicineText = medicineText.trim();
