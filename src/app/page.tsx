@@ -39,7 +39,7 @@ export default function LandingPage() {
             WHERE<span className="text-primary">IS</span>MY
           </span>
           <span className="text-xl font-black tracking-tight">
-            <span className="text-primary">Med</span>ICINE
+            <span className="text-primary">MED</span>ICINE
           </span>
         </div>
         <Button variant="outline" size="sm" onClick={() => router.push('/login')}>
@@ -169,7 +169,7 @@ export default function LandingPage() {
             +91 93303 74330
           </a>
         </div>
-        <p className="text-gray-400 text-sm">LocalPill - Find medicine near you</p>
+        <p className="text-gray-400 text-sm">Where is My Medicine - Find medicine near you</p>
       </footer>
     </div>
   );
