@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'LocalPill - Find Medicine Near You',
+  title: 'Where is My Medicine - Find Medicine Near You',
   description:
     'Stop wasting time visiting multiple pharmacies. Find out which nearby pharmacy has your medicine in stock.',
   manifest: '/manifest.json',
