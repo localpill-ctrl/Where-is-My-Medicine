@@ -36,10 +36,10 @@ export default function LandingPage() {
       <header className="px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-1">
           <span className="text-xl font-black tracking-tight">
-            L<span className="text-primary">O</span>CAL
+            Where<span className="text-primary">IS</span>MY
           </span>
           <span className="text-xl font-black tracking-tight">
-            <span className="text-primary">P</span>ILL
+            <span className="text-primary">Med</span>ICINE
           </span>
         </div>
         <Button variant="outline" size="sm" onClick={() => router.push('/login')}>
