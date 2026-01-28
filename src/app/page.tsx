@@ -54,7 +54,7 @@ export default function LandingPage() {
           <div className="mx-auto mb-8">
             <Image
               src="/logo.png"
-              alt="LocalPill"
+              alt="Where is My Medicine"
               width={200}
               height={100}
               className="h-24 w-auto mx-auto"
