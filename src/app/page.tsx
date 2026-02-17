@@ -75,7 +75,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col gap-3">
             <Button size="lg" className="w-full" onClick={() => router.push('/register')}>
-              Get Started
+              Find Your Medicine
             </Button>
             <Button
               variant="outline"
