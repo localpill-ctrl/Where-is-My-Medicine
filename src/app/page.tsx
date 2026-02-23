@@ -159,15 +159,23 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="px-6 py-8 border-t border-gray-100 text-center">
-        <div className="mb-4">
-          <p className="text-gray-600 font-medium mb-1">Customer Support</p>
-          <a
-            href="tel:+919330374330"
-            className="text-primary-dark font-bold text-lg hover:underline"
-          >
-            +91 93303 74330
-          </a>
+     <footer className="px-6 py-8 border-t border-gray-100 text-center">
+  <div className="mb-4">
+    <p className="text-gray-600 font-medium mb-1">Customer Support</p>
+    
+    <a
+      href="tel:+919330374330"
+      className="block text-primary-dark font-bold text-lg hover:underline"
+    >
+      +91 93303 74330
+    </a>
+
+    <a
+      href="mailto:info@whereismymedicine.com"
+      className="block text-primary-dark font-semibold text-lg hover:underline mt-2"
+    >
+      info@whereismymedicine.com
+    </a>
         </div>
         <p className="text-gray-400 text-sm"> © Where is My Medicine. All rights reserved. </p>
       </footer>
