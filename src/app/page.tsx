@@ -174,7 +174,7 @@ export default function LandingPage() {
       href="mailto:info@whereismymedicine.com"
       className="block text-primary-dark font-semibold text-lg hover:underline mt-2"
     >
-      info@whereismymedicine.com
+      support@whereismymedicine.com
     </a>
         </div>
         <p className="text-gray-400 text-sm"> © Where is My Medicine. All rights reserved. </p>
