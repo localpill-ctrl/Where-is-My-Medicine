@@ -63,9 +63,9 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-4xl font-black mb-4 leading-tight">
-            Find Medicine
+            India's First
             <br />
-            <span className="text-primary-dark">Near You</span>
+            <span className="text-primary-dark">Hyperlocal Medicine Discovery Platform</span>
           </h1>
 
           <p className="text-gray-500 text-lg mb-8">
