@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Where is My Medicine - India's First Hyperlocal Medicine Availability Platform',
+  title: 'Where is My Medicine - India's First Hyperlocal Medicine Finding Platform',
   description:
     'Stop wasting time visiting multiple pharmacies. Find out which nearby pharmacy has your medicine in stock.',
   manifest: '/manifest.json',
