@@ -65,7 +65,7 @@ export default function LandingPage() {
           <h1 className="text-4xl font-black mb-4 leading-tight">
             India's First
             <br />
-            <span className="text-primary-dark">Hyperlocal Medicine Discovery Platform</span>
+            <span className="text-primary-dark">Hyperlocal Medicine Availability Platform</span>
           </h1>
 
           <p className="text-gray-500 text-lg mb-8">
