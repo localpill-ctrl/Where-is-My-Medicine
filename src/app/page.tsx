@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import { MapPin, Upload, MessageCircle, Pill, Search, Phone, Navigation } from 'lucide-react';
 
-export default function LandingPage() {
+export default function LandingPage() 
   const router = useRouter();
   const { isAuthenticated, user, loading } = useAuth();
 
