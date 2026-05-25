@@ -5,15 +5,23 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
-import { MapPin, Upload, MessageCircle, Pill, Search, Phone, Navigation } from 'lucide-react';
 
-export default function LandingPage() 
+import {
+  MapPin,
+  Upload,
+  MessageCircle,
+  Pill,
+  Phone,
+  Navigation,
+} from 'lucide-react';
+
+export default function LandingPage() {
   const router = useRouter();
+
   const { isAuthenticated, user, loading } = useAuth();
 
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
-      // Redirect to appropriate dashboard
       if (user.role === 'pharmacy') {
         router.push('/pharmacy/dashboard');
       } else {
@@ -38,11 +46,17 @@ export default function LandingPage()
           <span className="text-xl font-black tracking-tight">
             WHERE<span className="text-primary">IS</span>MY
           </span>
+
           <span className="text-xl font-black tracking-tight">
             <span className="text-primary">MED</span>ICINE
           </span>
         </div>
-        <Button variant="outline" size="sm" onClick={() => router.push('/login')}>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push('/login')}
+        >
           Login
         </Button>
       </header>
@@ -62,21 +76,31 @@ export default function LandingPage()
             />
           </div>
 
+          {/* Heading */}
           <h1 className="text-4xl font-black mb-4 leading-tight">
-            India's First
+            India&apos;s First
             <br />
-            <span className="text-primary-dark">Hyperlocal Medicine Finding Platform</span>
+            <span className="text-primary-dark">
+              Hyperlocal Medicine Finding Platform
+            </span>
           </h1>
 
+          {/* Description */}
           <p className="text-gray-500 text-lg mb-8">
             Stop wasting time visiting multiple pharmacies. Find out which nearby
             pharmacy has your medicine in stock.
           </p>
 
+          {/* CTA Buttons */}
           <div className="flex flex-col gap-3">
-            <Button size="lg" className="w-full" onClick={() => router.push('/register')}>
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => router.push('/register')}
+            >
               Find Your Medicine
             </Button>
+
             <Button
               variant="outline"
               size="lg"
@@ -90,41 +114,58 @@ export default function LandingPage()
 
         {/* How it Works */}
         <section className="mt-20 max-w-lg mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8">How it Works</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">
+            How it Works
+          </h2>
 
           <div className="space-y-6">
+            {/* Step 1 */}
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-primary-light rounded-xl flex items-center justify-center flex-shrink-0">
                 <Upload className="w-6 h-6 text-primary-dark" />
               </div>
+
               <div>
-                <h3 className="font-semibold text-lg">Upload or Type</h3>
+                <h3 className="font-semibold text-lg">
+                  Upload or Type
+                </h3>
+
                 <p className="text-gray-500">
-                  Upload your prescription photo or simply type the medicine name
-                  you&apos;re looking for.
+                  Upload your prescription photo or simply type the medicine
+                  name you&apos;re looking for.
                 </p>
               </div>
             </div>
 
+            {/* Step 2 */}
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-primary-light rounded-xl flex items-center justify-center flex-shrink-0">
                 <MapPin className="w-6 h-6 text-primary-dark" />
               </div>
+
               <div>
-                <h3 className="font-semibold text-lg">See Who Has It</h3>
+                <h3 className="font-semibold text-lg">
+                  See Who Has It
+                </h3>
+
                 <p className="text-gray-500">
-                  Nearby pharmacies respond with availability. See which ones have
-                  your medicine in stock.
+                  Nearby pharmacies respond with availability. See which ones
+                  have your medicine in stock.
                 </p>
               </div>
             </div>
 
+            {/* Step 3 */}
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-primary-light rounded-xl flex items-center justify-center flex-shrink-0">
                 <Navigation className="w-6 h-6 text-primary-dark" />
               </div>
+
               <div>
-                <h3 className="font-semibold text-lg">Go Get It</h3>
+                <h3 className="font-semibold text-lg">
+                  Go Get It
+                </h3>
+
                 <p className="text-gray-500">
                   Call the pharmacy, chat with them, or get directions to visit
                   directly. No more wasted trips!
@@ -136,20 +177,29 @@ export default function LandingPage()
 
         {/* For Pharmacies */}
         <section className="mt-16 max-w-lg mx-auto bg-gray-50 rounded-2xl p-6">
-          <h2 className="text-xl font-bold mb-4">For Pharmacies</h2>
+          <h2 className="text-xl font-bold mb-4">
+            For Pharmacies
+          </h2>
+
           <p className="text-gray-600 mb-4">
-            Get notified when nearby customers are looking for medicine you stock.
-            Simply respond with availability and connect with customers directly.
+            Get notified when nearby customers are looking for medicine you
+            stock. Simply respond with availability and connect with customers
+            directly.
           </p>
+
           <ul className="space-y-2 text-gray-600">
             <li className="flex items-center gap-2">
               <Pill className="w-4 h-4 text-primary-dark" />
-              <span>Receive medicine requests from nearby customers</span>
+              <span>
+                Receive medicine requests from nearby customers
+              </span>
             </li>
+
             <li className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4 text-primary-dark" />
               <span>Mark available and chat with customers</span>
             </li>
+
             <li className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-primary-dark" />
               <span>No delivery obligation - customers visit you</span>
@@ -159,25 +209,30 @@ export default function LandingPage()
       </main>
 
       {/* Footer */}
-     <footer className="px-6 py-8 border-t border-gray-100 text-center">
-  <div className="mb-4">
-    <p className="text-gray-600 font-medium mb-1">Customer Support</p>
-    
-    <a
-      href="tel:+919330374330"
-      className="block text-primary-dark font-bold text-lg hover:underline"
-    >
-      +91 93303 74330
-    </a>
+      <footer className="px-6 py-8 border-t border-gray-100 text-center">
+        <div className="mb-4">
+          <p className="text-gray-600 font-medium mb-1">
+            Customer Support
+          </p>
 
-    <a
-      href="mailto:info@whereismymedicine.com"
-      className="block text-primary-dark font-semibold text-lg hover:underline mt-2"
-    >
-      connect@whereismymedicine.com
-    </a>
+          <a
+            href="tel:+919330374330"
+            className="block text-primary-dark font-bold text-lg hover:underline"
+          >
+            +91 93303 74330
+          </a>
+
+          <a
+            href="mailto:connect@whereismymedicine.com"
+            className="block text-primary-dark font-semibold text-lg hover:underline mt-2"
+          >
+            connect@whereismymedicine.com
+          </a>
         </div>
-        <p className="text-gray-400 text-sm"> © Where is My Medicine. All rights reserved. </p>
+
+        <p className="text-gray-400 text-sm">
+          © Where is My Medicine. All rights reserved.
+        </p>
       </footer>
     </div>
   );
