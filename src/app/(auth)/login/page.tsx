@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { signInWithGoogle } from '@/lib/firebase/auth';
+import { signInWithGoogle, handleRedirectResult } from '@/lib/firebase/auth';
 import { getUser } from '@/lib/firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/ui/Button';
@@ -28,6 +28,51 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, router]);
 
+  // On mount: capture the result if returning from a mobile Google redirect
+  useEffect(() => {
+    const checkRedirect = async () => {
+      try {
+        const firebaseUser = await handleRedirectResult();
+        if (!firebaseUser) return; // Not a redirect return, nothing to do
+
+        // Only set loading if we actually have a redirect result to process
+        setLoading(true);
+        const existingUser = await getUser(firebaseUser.uid);
+        if (existingUser) {
+          router.push(existingUser.role === 'pharmacy' ? '/pharmacy/dashboard' : '/dashboard');
+        } else {
+          router.push('/register');
+        }
+      } catch (err: any) {
+        // Silently ignore user-cancelled — they just closed the Google screen
+        if (
+          err.code === 'auth/user-cancelled' ||
+          err.code === 'auth/popup-closed-by-user' ||
+          err.code === 'auth/cancelled-popup-request'
+        ) {
+          return;
+        }
+        console.error('Redirect sign-in error:', err);
+        setError(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkRedirect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getErrorMessage = (err: any): string => {
+    if (err.code === 'auth/user-cancelled') return 'Sign-in cancelled. Please try again.';
+    if (err.code === 'auth/popup-closed-by-user') return 'Sign-in cancelled. Please try again.';
+    if (err.code === 'auth/cancelled-popup-request') return 'Sign-in cancelled. Please try again.';
+    if (err.code === 'auth/popup-blocked') return 'Popup blocked. Please allow popups for this site.';
+    if (err.code === 'auth/network-request-failed') return 'Network error. Please check your connection.';
+    if (err.code === 'auth/unauthorized-domain') return 'This domain is not authorised. Check Firebase console.';
+    return 'Failed to sign in. Please try again.';
+  };
+
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
@@ -35,35 +80,25 @@ export default function LoginPage() {
     try {
       const firebaseUser = await signInWithGoogle();
 
-      // Check if user exists in Firestore
+      // Only reached on desktop (popup flow)
       const existingUser = await getUser(firebaseUser.uid);
-
       if (existingUser) {
-        // User exists, redirect to dashboard
-        if (existingUser.role === 'pharmacy') {
-          router.push('/pharmacy/dashboard');
-        } else {
-          router.push('/dashboard');
-        }
+        router.push(existingUser.role === 'pharmacy' ? '/pharmacy/dashboard' : '/dashboard');
       } else {
-        // New user, redirect to registration
         router.push('/register');
       }
     } catch (err: any) {
-      console.error('Error signing in with Google:', err);
-
-      // Handle specific errors
-      let errorMessage = 'Failed to sign in. Please try again.';
-      if (err.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Sign-in cancelled. Please try again.';
-      } else if (err.code === 'auth/popup-blocked') {
-        errorMessage = 'Popup blocked. Please allow popups for this site.';
-      } else if (err.code === 'auth/network-request-failed') {
-        errorMessage = 'Network error. Please check your connection.';
+      // Silently ignore user-cancelled — they just closed the Google popup
+      if (
+        err.code === 'auth/user-cancelled' ||
+        err.code === 'auth/popup-closed-by-user' ||
+        err.code === 'auth/cancelled-popup-request'
+      ) {
+        setLoading(false);
+        return;
       }
-
-      setError(errorMessage);
-    } finally {
+      console.error('Error signing in with Google:', err);
+      setError(getErrorMessage(err));
       setLoading(false);
     }
   };
